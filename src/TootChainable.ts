@@ -1,10 +1,4 @@
-export interface emphasizerCallback {
-  (element: HTMLElement): HTMLElement;
-}
-
-export interface deemphasizerCallback {
-  (element: HTMLElement): void;
-}
+import { TootEmphasizer } from "./TootEmphasizer";
 
 export class TootChainable {
   public selector: string;
@@ -12,38 +6,33 @@ export class TootChainable {
   private element: HTMLElement;
   public title: string;
   public description: string;
+  public emphasizer: TootEmphasizer;
   public previous: TootChainable;
   public next: TootChainable;
-  public emphasizer: emphasizerCallback;
-  public deemphasizer: deemphasizerCallback;
   
   //#region Setters
-  setSelector(selector: string): TootChainable {
+  setSelector(selector: string): this {
     this.selector = selector;
     return this;
   }
-  setTitle(title: string): TootChainable {
+  setTitle(title: string): this {
     this.title = title;
     return this;
   }
-  setDescription(desc: string): TootChainable {
+  setDescription(desc: string): this {
     this.description = desc;
     return this;
   }
-  setPrevious(toot: TootChainable): TootChainable {
+  setPrevious(toot: TootChainable): this {
     this.previous = toot;
     return this;
   }
-  setNext(toot: TootChainable): TootChainable {
+  setNext(toot: TootChainable): this {
     this.next = toot;
     return this;
   }
-  setEmphasizer(emphasizer: emphasizerCallback): TootChainable {
+  setEmphasizer(emphasizer: TootEmphasizer): this {
     this.emphasizer = emphasizer;
-    return this;
-  }
-  setDeemphasizer(deemphasizer: deemphasizerCallback): TootChainable {
-    this.deemphasizer = deemphasizer;
     return this;
   }
   //#endregion
@@ -56,12 +45,14 @@ export class TootChainable {
     return this.element;
   }
 
-  private emphasizerElement: HTMLElement;
-  show() {
-    this.emphasizerElement = this.emphasizer(this.getElement());
+  public emphasizerElement: HTMLElement;
+  show(): void {
+    this.emphasizerElement = this.emphasizer.emphasize(this.getElement());
   }
-  hide() {
-    this.deemphasizer(this.emphasizerElement);
+  hide(): void {
+    let prom = this.emphasizer.deemphasize(this.getElement(), this.emphasizerElement);
     this.emphasizerElement = undefined;
+    if (prom)
+      prom.then(() => this.next?.show())
   }
 }
