@@ -1,5 +1,5 @@
 import { TootStep } from "./TootStep";
 export interface ITootEmphasizer {
-  emphasize: (step: TootStep) => HTMLElement;
-  deemphasize: (step: TootStep) => void | Promise<void>;
+  emphasize: (step: TootStep) => Promise<void>;
+  deemphasize: (step: TootStep) => Promise<void>;
 }

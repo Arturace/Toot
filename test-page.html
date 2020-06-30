@@ -11,4 +11,10 @@
   <div id="result" style="width: 300px; height: 175px;">No result</div>
 </body>
 <script src="test-page.js" type="module"></script>
+<script>
+  const btn = document.getElementById('activator');
+  const result = document.getElementById('result');
+
+  btn.onclick = () => result.innerHTML = 'button got clicked!';
+</script>
 </html>

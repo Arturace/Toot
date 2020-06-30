@@ -12,6 +12,7 @@ const highlighter = {
     const left = el.offsetLeft;
 
     const highlightEl = document.createElement('div');
+    highlightEl.style.pointerEvents = 'none';
     highlightEl.style.width = width + 'px';
     highlightEl.style.height = height + 'px';
     highlightEl.style.position = 'absolute';
@@ -51,7 +52,7 @@ const toot = new Tooter(null, {
   'basic-highlight': highlighter
 });
 
-toot.addDisplayGenerator('Basic_Display', () => {
+toot.addDisplayGenerator('Basic_Display', (toot) => {
   let display = {};
 
   display.mainContainer = document.createElement('div');
@@ -72,12 +73,14 @@ toot.addDisplayGenerator('Basic_Display', () => {
   display.mainContainer.appendChild(display.previousBtn);
   display.mainContainer.appendChild(display.nextBtn);
 
+  display.show = () => document.body.appendChild(display.mainContainer);
+  display.hide = () => document.body.removeChild(display.mainContainer);
   return display;
 });
 
 const secondTootJSON = `{
   "title": "Result should change"
-  , "description": ""
+  , "description": "If it didn't, it means you didn't click on the button!"
   , "selector": "#result"
   , "emphasizer": "basic-highlight"
   , "displayGenerator": "Basic_Display"
@@ -92,25 +95,5 @@ const firstTootJSON = `{
 toot.addToot('firstToot', firstTootJSON);
 toot.addToot('secondToot', secondTootJSON);
 toot.show(['firstToot', 'secondToot']);
-// const secondToot = toot
-//   .newToot('2ndToot')
-//   .setSelector('#result')
-//   .setTitle('Result should change')
-//   .setEmphasizer(toot.emphasizers['basic-highlight']);
-
-// const testingToot = toot
-//   .newToot('testingToot')
-//   .setSelector('#activator')
-//   .setTitle('Activating something awesome')
-//   .setDescription(`If you click on this amazingly plain button,
-// you will achieve greatness... Or show a different text in the div bellow.`)
-//   .setEmphasizer(toot.emphasizers['basic-highlight'])
-//   .setNext(secondToot)
-//   .show();
 
 window.toot = toot;
-
-// to hide
-// toot.hide('testingToot')
-// testingToot.hide()
-

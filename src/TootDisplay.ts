@@ -4,6 +4,6 @@ export interface ITootDisplay {
   descriptionContainer: HTMLElement;
   nextBtn: HTMLElement;
   previousBtn: HTMLElement;
-  show: () => void | Promise<void>;
-  hide: () => void | Promise<void>;
+  show: () => Promise<void>;
+  hide: () => Promise<void>;
 }
