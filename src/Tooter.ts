@@ -35,51 +35,58 @@ export class Tooter {
   }
 
   protected currentStep: TootStep;
-  protected currentStepKeysIndex: number;
   protected currentStepKeys: Array<string>;
   show(tootKeys: Array<string>) {
     if (!tootKeys || tootKeys.length == 0) throw new Error();
     this.currentStepKeys = tootKeys;
-    this.currentStepKeysIndex = 0;
-    this.displayStep(this.toots[tootKeys[this.currentStepKeysIndex]]);
+    this.displayStep(0);
   }
 
-  protected displayStep(step: TootStep) {
-    this.currentStep = step;
-    // Getting the ITootDisplay
-    let display = this.displayGenerators[this.currentStep.displayGenerator](this.currentStep);
+  /**
+   * Depens on currentStepKeys
+   * @param step 
+   * @param indexOfstep 
+   */
+  protected displayStep(indexOfstep: number) {
+    let step = this.toots[this.currentStepKeys[indexOfstep]];
+    let display = this.displayGenerators[step.displayGenerator](step);
 
     // Updating the text
-    display.descriptionContainer.innerHTML = this.currentStep.description;
-    display.titleContainer.innerHTML = this.currentStep.title;
+    display.descriptionContainer.innerHTML = step.description;
+    display.titleContainer.innerHTML = step.title;
 
-    display.previousBtn.onclick = () => this.continue(--this.currentStepKeysIndex, display);
-    display.nextBtn.onclick = () => this.continue(++this.currentStepKeysIndex, display);
+    display.previousBtn.onclick = () => this.continue(indexOfstep - 1, step, display);
+    display.nextBtn.onclick = () => this.continue(indexOfstep + 1, step, display);
 
-    if (this.currentStepKeysIndex + 1 < this.currentStepKeys.length)
+    if (indexOfstep + 1 < this.currentStepKeys.length)
       display.nextBtn.innerHTML = "Next";
     else
       display.nextBtn.innerHTML = "Done!";
 
-    if (this.currentStepKeysIndex == 0)
+    if (indexOfstep == 0)
       display.previousBtn.innerHTML = "Nevermind...";
     else
       display.previousBtn.innerHTML = "Previous";
 
-    this.emphasizers[this.currentStep.emphasizer].emphasize.call(this.currentStep);
+    this.emphasizers[step.emphasizer].emphasize.call(step);
     display.show();
   }
-  protected continue(nextTootX: number, previousDisplay: ITootDisplay) {
+  /**
+   * Depens on currentStepKeys
+   * @param nextTootX 
+   * @param previousDisplay 
+   */
+  protected continue(nextTootX: number, previousStep: TootStep, previousDisplay: ITootDisplay) {
     Promise.all([
-      this.emphasizers[this.currentStep.emphasizer].deemphasize.call(this.currentStep),
-      previousDisplay.hide()])
+      this.emphasizers[previousStep.emphasizer].deemphasize.call(previousStep)
+      , previousDisplay.hide()])
       .then(() => {
         if (nextTootX < 0) {
           // We have cancelled the Toot
         } else if (nextTootX == this.currentStepKeys.length) {
           // We have completed the Toot
         } else {
-          this.displayStep(this.toots[this.currentStepKeys[nextTootX]]);
+          this.displayStep(nextTootX);
         }
       })
   }
