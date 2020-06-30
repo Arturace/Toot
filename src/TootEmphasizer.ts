@@ -1,4 +1,5 @@
-export interface TootEmphasizer {
-  emphasize: (element: HTMLElement) => HTMLElement;
-  deemphasize: (element: HTMLElement, emphResult: HTMLElement) => void | Promise<void>;
+import { TootStep } from "./TootStep";
+export interface ITootEmphasizer {
+  emphasize: (step: TootStep) => HTMLElement;
+  deemphasize: (step: TootStep) => void | Promise<void>;
 }

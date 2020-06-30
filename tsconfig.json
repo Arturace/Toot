@@ -1,7 +1,13 @@
 {
   "compilerOptions": {
     "module": "ES2020",
-    "outDir": "dist"
+    "outDir": "dist",
+    "lib": [
+      "es5",
+      "es6",
+      "dom",
+      "es2015.collection"
+    ]
   },
   "exclude": [
     "node_modules",
