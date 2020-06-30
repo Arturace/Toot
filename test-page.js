@@ -53,6 +53,7 @@ const toot = new Tooter(null, {
 });
 
 toot.addDisplayGenerator('Basic_Display', (toot) => {
+  const el = TootStep.getElement(toot);
   let display = {};
 
   display.mainContainer = document.createElement('div');
@@ -62,8 +63,8 @@ toot.addDisplayGenerator('Basic_Display', (toot) => {
   display.nextBtn = document.createElement('button');
 
   display.mainContainer.style.position = 'absolute';
-  display.mainContainer.style.top = '0';
-  display.mainContainer.style.right = '0';
+  display.mainContainer.style.top = el.offsetTop + 'px';
+  display.mainContainer.style.left = (el.offsetLeft + el.offsetWidth) + 'px';
   display.mainContainer.style.width = '200px';
   display.mainContainer.style.padding = '10px';
   display.mainContainer.style.backgroundColor = 'aliceBlue';
@@ -75,6 +76,7 @@ toot.addDisplayGenerator('Basic_Display', (toot) => {
 
   display.show = () => document.body.appendChild(display.mainContainer);
   display.hide = () => document.body.removeChild(display.mainContainer);
+  
   return display;
 });
 
