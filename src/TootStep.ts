@@ -8,7 +8,7 @@ export class TootStep {
   public displayGenerator: string;
   /** Element set by an emphasizer */
   public emphasizerElement: HTMLElement;
-
+  
   //#region Setters
   setSelector(selector: string): this {
     this.selector = selector;

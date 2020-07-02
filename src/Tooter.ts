@@ -6,6 +6,8 @@ export class Tooter {
   public toots: Record<string, TootStep>;
   public emphasizers: Record<string, ITootEmphasizer>;
   public displayGenerators: Record<string, (step: TootStep) => ITootDisplay>;
+  public tootCompletedCallback: () => void = null;
+  public tootCanceledCallback: () => void = null;
 
   constructor(
     toots: Record<string, TootStep>
@@ -21,7 +23,7 @@ export class Tooter {
     if (!emphasizerKey) throw Error('emphasizerKey must be defined');
     this.emphasizers[emphasizerKey] = emphasizer;
   }
-
+  
   addDisplayGenerator(displayGeneratorKey: string, displayGenerator: () => ITootDisplay) {
     if (!displayGeneratorKey) throw Error('emphasizerKey must be defined');
     this.displayGenerators[displayGeneratorKey] = displayGenerator;
@@ -82,9 +84,9 @@ export class Tooter {
       , previousDisplay.hide()])
       .then(() => {
         if (nextTootX < 0) {
-          // We have cancelled the Toot
+          if (this.tootCanceledCallback) this.tootCanceledCallback();
         } else if (nextTootX == this.currentStepKeys.length) {
-          // We have completed the Toot
+          if (this.tootCompletedCallback) this.tootCompletedCallback();
         } else {
           this.displayStep(nextTootX);
         }
