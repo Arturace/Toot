@@ -1,9 +1,15 @@
+import { TootStep } from "./TootStep";
+
 export interface ITootDisplay {
-  mainContainer: HTMLElement;
-  titleContainer: HTMLElement;
-  descriptionContainer: HTMLElement;
-  nextBtn: HTMLElement;
-  previousBtn: HTMLElement;
-  show: () => Promise<void>;
-  hide: () => Promise<void>;
+  setTitle(title: string): void;
+  setDescription(desc: string): void;
+  setNextCallback(callback: () => void);
+  setPreviousCallback(callback: () => void);
+  setStopCallback(callback: () => void);
+  show: (stepIndex: number, tootLength: number) => Promise<void>;
+  hide: (stepIndex: number, tootLength: number) => Promise<void>;
+}
+
+export interface ITootDisplayGenerator {
+  (step: TootStep): ITootDisplay;
 }
