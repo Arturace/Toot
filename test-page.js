@@ -48,7 +48,7 @@ const highlighter = {
     )
   }
 };
-const toot = new Tooter(null, {
+const toot = new Tooter({}, {
   'basic-highlight': highlighter
 });
 
@@ -60,7 +60,11 @@ toot.addDisplayGenerator('Basic_Display', (toot) => {
   display.descriptionContainer = document.createElement('p');
   display.titleContainer = document.createElement('h5');
   display.previousBtn = document.createElement('button');
+  display.previousBtn.innerHTML = 'Previous';
+  display.stopBtn = document.createElement('button');
+  display.stopBtn.innerHTML = 'Stop it';
   display.nextBtn = document.createElement('button');
+  display.nextBtn.innerHTML = 'Next';
 
   display.mainContainer.style.position = 'absolute';
   display.mainContainer.style.top = el.offsetTop + 'px';
@@ -72,10 +76,16 @@ toot.addDisplayGenerator('Basic_Display', (toot) => {
   display.mainContainer.appendChild(display.titleContainer);
   display.mainContainer.appendChild(display.descriptionContainer);
   display.mainContainer.appendChild(display.previousBtn);
+  display.mainContainer.appendChild(display.stopBtn);
   display.mainContainer.appendChild(display.nextBtn);
 
   display.show = () => document.body.appendChild(display.mainContainer);
   display.hide = () => document.body.removeChild(display.mainContainer);
+  display.setDescription = (desc) => display.descriptionContainer.innerHTML = desc;
+  display.setTitle = (title) => display.titleContainer.innerHTML = title;
+  display.setNextCallback = (clb) => display.nextBtn.addEventListener('click', clb); 
+  display.setPreviousCallback = (clb) => display.previousBtn.addEventListener('click', clb);
+  display.setStopCallback = (clb) => display.stopBtn.addEventListener('click', clb);
   
   return display;
 });
@@ -94,8 +104,8 @@ const firstTootJSON = `{
   , "emphasizer": "basic-highlight"
   , "displayGenerator": "Basic_Display"
 }`;
-toot.addToot('firstToot', firstTootJSON);
-toot.addToot('secondToot', secondTootJSON);
+toot.addTootStep('firstToot', firstTootJSON);
+toot.addTootStep('secondToot', secondTootJSON);
 toot.show(['firstToot', 'secondToot']);
 
 window.toot = toot;

@@ -1,42 +1,42 @@
-import { ITootEmphasizer } from "./TootEmphasizer.js";
-import { TootStep } from "./TootStep.js";
-import { ITootDisplay } from "./TootDisplay.js";
+import { ITootEmphasizer } from "./TootEmphasizer";
+import { TootStep } from "./TootStep";
+import { ITootDisplay, ITootDisplayGenerator } from "./TootDisplay";
 
 export class Tooter {
-  public toots: Record<string, TootStep>;
-  public emphasizers: Record<string, ITootEmphasizer>;
-  public displayGenerators: Record<string, (step: TootStep) => ITootDisplay>;
+  /** Global callback for any completed tutorial */
   public tootCompletedCallback: () => void = null;
+  /** Global callback for any canceled tutorial */
   public tootCanceledCallback: () => void = null;
 
   constructor(
-    toots: Record<string, TootStep>
-    , emphasizers: Record<string, ITootEmphasizer>
-    , displayGenerators: Record<string, (step: TootStep) => ITootDisplay>
-  ) {
-    this.toots = toots ? toots : {};
-    this.emphasizers = emphasizers ? emphasizers : {};
-    this.displayGenerators = displayGenerators ? displayGenerators : {};
+    public toots: Record<string, TootStep> = {}
+    , public emphasizers: Record<string, ITootEmphasizer> = {}
+    , public displayGenerators: Record<string, ITootDisplayGenerator> = {}
+  ) { }
+
+  addDisplayGenerator(
+    displayGeneratorKey: string,
+    displayGenerator: ITootDisplayGenerator) {
+    if (!displayGeneratorKey) throw Error('emphasizerKey must be defined');
+    this.displayGenerators[displayGeneratorKey] = displayGenerator;
   }
 
   addEmphasizer(emphasizerKey: string, emphasizer: ITootEmphasizer) {
     if (!emphasizerKey) throw Error('emphasizerKey must be defined');
     this.emphasizers[emphasizerKey] = emphasizer;
   }
-  
-  addDisplayGenerator(displayGeneratorKey: string, displayGenerator: () => ITootDisplay) {
-    if (!displayGeneratorKey) throw Error('emphasizerKey must be defined');
-    this.displayGenerators[displayGeneratorKey] = displayGenerator;
-  }
 
-  addToot(tootKey: string, tootJson: string) {
+  addTootStep(tootKey: string, tootJson: string) {
     if (!tootKey) throw Error('tootKey must be defined');
-    let toot = Object.assign(new TootStep, JSON.parse(tootJson));
+    let toot: TootStep = Object.assign(new TootStep, JSON.parse(tootJson));
+
+    if (!toot.emphasizer) throw new Error('Tootstep did not contain an emphasizer');
+    if (!toot.displayGenerator) throw new Error('Tootstep did not contain a displayGenerator');
+
     this.toots[tootKey] = toot;
     return toot;
   }
 
-  protected currentStep: TootStep;
   protected currentStepKeys: Array<string>;
   show(tootKeys: Array<string>) {
     if (!tootKeys || tootKeys.length == 0) throw new Error();
@@ -47,41 +47,58 @@ export class Tooter {
   /**
    * Depens on currentStepKeys
    * @param step 
-   * @param indexOfstep 
+   * @param indexOfStep 
    */
-  protected displayStep(indexOfstep: number) {
-    let step = this.toots[this.currentStepKeys[indexOfstep]];
+  protected displayStep(indexOfStep: number) {
+    let step = this.toots[this.currentStepKeys[indexOfStep]];
     let display = this.displayGenerators[step.displayGenerator](step);
 
     // Updating the text
-    display.descriptionContainer.innerHTML = step.description;
-    display.titleContainer.innerHTML = step.title;
+    display.setDescription(step.description);
+    display.setTitle(step.title);
 
-    display.previousBtn.onclick = () => this.continue(indexOfstep - 1, step, display);
-    display.nextBtn.onclick = () => this.continue(indexOfstep + 1, step, display);
+    display.setNextCallback(() =>
+      this.continue(indexOfStep + 1, indexOfStep, step, display));
+    display.setPreviousCallback(() =>
+      this.continue(indexOfStep - 1, indexOfStep, step, display));
+    display.setStopCallback(() =>
+      this.continue(-1, indexOfStep, step, display));
 
-    if (indexOfstep + 1 < this.currentStepKeys.length)
-      display.nextBtn.innerHTML = "Next";
-    else
-      display.nextBtn.innerHTML = "Done!";
+    // if (display.previousBtn) {
+    //   display.previousBtn.onclick = () => this.continue(indexOfstep - 1, step, display);
 
-    if (indexOfstep == 0)
-      display.previousBtn.innerHTML = "Nevermind...";
-    else
-      display.previousBtn.innerHTML = "Previous";
+    //   if (indexOfstep == 0)
+    //     display.previousBtn.innerHTML = "Nevermind...";
+    //   else
+    //     display.previousBtn.innerHTML = "Previous";
+    // }
+
+    // if (display.nextBtn) {
+    //   display.nextBtn.onclick = () => this.continue(indexOfstep + 1, step, display);
+
+    //   if (indexOfstep + 1 < this.currentStepKeys.length)
+    //     display.nextBtn.innerHTML = "Next";
+    //   else
+    //     display.nextBtn.innerHTML = "Done!";
+    // }
 
     this.emphasizers[step.emphasizer].emphasize.call(step);
-    display.show();
+    display.show(indexOfStep, this.currentStepKeys.length);
   }
   /**
    * Depens on currentStepKeys
    * @param nextTootX 
    * @param previousDisplay 
    */
-  protected continue(nextTootX: number, previousStep: TootStep, previousDisplay: ITootDisplay) {
+  protected continue(
+    nextTootX: number
+    , previousStepX:number
+    , previousStep: TootStep
+    , previousDisplay: ITootDisplay) {
     Promise.all([
       this.emphasizers[previousStep.emphasizer].deemphasize.call(previousStep)
-      , previousDisplay.hide()])
+      , previousDisplay.hide(previousStepX, this.currentStepKeys.length)
+    ])
       .then(() => {
         if (nextTootX < 0) {
           if (this.tootCanceledCallback) this.tootCanceledCallback();
