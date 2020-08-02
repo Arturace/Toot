@@ -8,9 +8,9 @@ import { ITootEmphasizer } from '../src/TootEmphasizer';
 import { TestTootDisplay, Test_Key_NotGiven as Test_Throws_Key_NotGiven } from './Tooter.test-utils';
 
 const constructorArgs = [
-  { name: 'toots', value: {} },
-  { name: 'emphasizers', value: {} },
-  { name: 'displayGenerators', value: {} },
+  { name: nameof<Tooter>(t => t.toots), value: {} },
+  { name: nameof<Tooter>(t => t.emphasizers), value: {} },
+  { name: nameof<Tooter>(t => t.displayGenerators), value: {} },
 ];
 
 describe('constructor', () => {
@@ -193,7 +193,7 @@ context('show', () => {
     }
   );
 
-  it('1 > 2 > 3 > done', async () => {
+  it('show 1 > 2 > 3 > done', async () => {
     await tooter.show(tootKeys)
     await nextCallback();
     await nextCallback();
