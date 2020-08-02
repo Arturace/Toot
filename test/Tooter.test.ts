@@ -3,7 +3,7 @@ import { nameof } from 'ts-simple-nameof';
 
 import { Tooter } from '../src/Tooter';
 import { TootStep } from '../src/TootStep';
-import { ITootDisplay, ITootDisplayGenerator } from '../src/TootDisplay';
+import { ITootDisplayGenerator } from '../src/TootDisplay';
 import { ITootEmphasizer } from '../src/TootEmphasizer';
 import { TestTootDisplay, Test_Key_NotGiven as Test_Throws_Key_NotGiven } from './Tooter.test-utils';
 
@@ -46,9 +46,9 @@ describe('add functions', () => {
       const key = 'someKey';
       const someTootDisplay = new TestTootDisplay();
       const displayGenerator: ITootDisplayGenerator = () => someTootDisplay;
-  
+
       tooter.addDisplayGenerator(key, displayGenerator);
-  
+
       expect(tooter.displayGenerators).to.have.property(key, displayGenerator);
     });
   });
@@ -65,9 +65,9 @@ describe('add functions', () => {
         emphasize: () => new Promise(res => res)
         , deemphasize: () => new Promise(res => res)
       };
-  
+
       tooter.addEmphasizer(key, someEphasizer);
-  
+
       expect(tooter.emphasizers).to.have.property(key, someEphasizer);
     });
   });
@@ -136,32 +136,43 @@ context('show', () => {
     }
   }
 
-  let latestDisplayGenerator: TestTootDisplay = null;
+  let nextCallback: () => void = null;
   const mockTootDisplayGenerator
-    : (key: 'displayGenerator1' | 'displayGenerator2') => ITootDisplayGenerator =
-    (callKey) => () => {
+    : (callKey: 'displayGenerator1' | 'displayGenerator2') => ITootDisplayGenerator =
+    (callKey) => (step) => {
       const someTootDisplay = new TestTootDisplay();
       someTootDisplay.setDescription = () => ++calls[callKey].setDescription;
       someTootDisplay.setTitle = () => ++calls[callKey].setTitle;
       someTootDisplay.setNextCallback = (clbck) => {
         ++calls[callKey].setNextCallback;
         someTootDisplay.nextCallback = clbck;
+        nextCallback = clbck;
       }
       someTootDisplay.setPreviousCallback = () => ++calls[callKey].setPreviousCallback;
       someTootDisplay.setStopCallback = () => ++calls[callKey].setStopCallback;
-      someTootDisplay.show = () => new Promise(res => { 
-        latestDisplayGenerator = someTootDisplay;
-        ++calls[callKey].show;
-        res(); });
-      someTootDisplay.hide = () => new Promise(res => { ++calls[callKey].hide; res(); });
+      someTootDisplay.show = () =>
+        new Promise(res => {
+          ++calls[callKey].show;
+          res();
+        });
+      someTootDisplay.hide = () => new Promise(res => {
+         ++calls[callKey].hide;
+         res();
+        });
       return someTootDisplay;
     };
 
   const mockTootEmphasizer
     : (key: 'emphasizer1' | 'emphasizer2') => ITootEmphasizer =
     (callKey) => ({
-      emphasize: () => new Promise(res => { ++calls[callKey].emphasize; res(); })
-      , deemphasize: () => new Promise(res => { ++calls[callKey].deemphasize; res(); })
+      emphasize: () => new Promise(res => { 
+        ++calls[callKey].emphasize;
+        res();
+      })
+      , deemphasize: () => new Promise(res => {
+        ++calls[callKey].deemphasize;
+        res();
+      })
     });
 
   const tootKeys = ['1', '2', '3'];
@@ -182,27 +193,22 @@ context('show', () => {
     }
   );
 
-  it('1 > 2 > 3', function(done) {
-    this.timeout(5000);
-    tooter.show(tootKeys);
-    latestDisplayGenerator.nextCallback();
-    latestDisplayGenerator.nextCallback();
-    setTimeout(() => {
-      expect(calls.displayGenerator1.setDescription).to.equal(2);
-      expect(calls.displayGenerator1.setTitle).to.equal(2);
-      expect(calls.displayGenerator1.setNextCallback).to.equal(2);
-      expect(calls.displayGenerator1.setPreviousCallback).to.equal(2);
-      expect(calls.displayGenerator1.setStopCallback).to.equal(2);
-      expect(calls.displayGenerator1.show).to.equal(2);
-      expect(calls.displayGenerator1.hide).to.equal(1);
-      expect(calls.displayGenerator2.setDescription).to.equal(1);
-      expect(calls.displayGenerator2.setTitle).to.equal(1);
-      expect(calls.displayGenerator2.setNextCallback).to.equal(1);
-      expect(calls.displayGenerator2.setPreviousCallback).to.equal(1);
-      expect(calls.displayGenerator2.setStopCallback).to.equal(1);
-      expect(calls.displayGenerator2.show).to.equal(1);
-      expect(calls.displayGenerator2.hide).to.equal(0);
-      done();
-    }, 2000);
+  it('1 > 2 > 3 > done', async () => {
+    await tooter.show(tootKeys)
+    await nextCallback();
+    await nextCallback();
+    await nextCallback();
+    
+    return new Promise(res => {
+      // displayGenerator1 should be shown twice and hidden twice
+      for (let prop in calls.displayGenerator1) {
+        expect(calls.displayGenerator1[prop]).to.equal(2);
+      }
+      // displayGenerator2 should be shown once and hidden once
+      for (let prop in calls.displayGenerator2) {
+        expect(calls.displayGenerator2[prop]).to.equal(1);
+      }
+      res();
+    });
   });
 });
