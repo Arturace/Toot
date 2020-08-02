@@ -1,10 +1,10 @@
 import { expect } from 'chai';
 import { nameof } from 'ts-simple-nameof';
 
-import { Tooter } from '../src/Tooter';
-import { TootStep } from '../src/TootStep';
-import { ITootDisplayGenerator } from '../src/TootDisplay';
-import { ITootEmphasizer } from '../src/TootEmphasizer';
+import { Tooter } from '../../src/Tooter';
+import { TootStep } from '../../src/TootStep';
+import { ITootDisplayGenerator } from '../../src/TootDisplay';
+import { ITootEmphasizer } from '../../src/TootEmphasizer';
 import { TestTootDisplay, Test_Key_NotGiven as Test_Throws_Key_NotGiven } from './Tooter.test-utils';
 
 const constructorArgs = [

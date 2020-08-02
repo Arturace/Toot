@@ -1,6 +1,6 @@
-import { ITootDisplay } from "../src/TootDisplay"
+import { ITootDisplay } from "../../src/TootDisplay"
 import { expect } from "chai";
-import { Tooter } from "../src/Tooter";
+import { Tooter } from "../../src/Tooter";
 
 export class TestTootDisplay implements ITootDisplay {
   public nextCallback: () => void;
