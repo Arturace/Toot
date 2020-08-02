@@ -2,18 +2,32 @@ import { ITootEmphasizer } from "./TootEmphasizer";
 import { TootStep } from "./TootStep";
 import { ITootDisplay, ITootDisplayGenerator } from "./TootDisplay";
 
+/**
+ * Hub for tutorials
+ */
 export class Tooter {
   /** Global callback for any completed tutorial */
   public tootCompletedCallback: () => void = null;
   /** Global callback for any canceled tutorial */
   public tootCanceledCallback: () => void = null;
 
+  /**
+   * Constructor letting you populate all the data in one shot
+   * @param toots tutorial steps
+   * @param emphasizers emphasizers
+   * @param displayGenerators generators
+   */
   constructor(
     public toots: Record<string, TootStep> = {}
     , public emphasizers: Record<string, ITootEmphasizer> = {}
     , public displayGenerators: Record<string, ITootDisplayGenerator> = {}
   ) { }
 
+  /**
+   * Add a display generator under a specific key
+   * @param displayGeneratorKey unique id, to be used by tutorial steps
+   * @param displayGenerator Display object generator
+   */
   addDisplayGenerator(
     displayGeneratorKey: string,
     displayGenerator: ITootDisplayGenerator) {
@@ -21,11 +35,21 @@ export class Tooter {
     this.displayGenerators[displayGeneratorKey] = displayGenerator;
   }
 
+  /**
+   * Add an emphasizer under a specific key
+   * @param emphasizerKey unqiue id, to be used by tutorial steps
+   * @param emphasizer Emphasizer
+   */
   addEmphasizer(emphasizerKey: string, emphasizer: ITootEmphasizer) {
     if (!emphasizerKey) throw Error('emphasizerKey must be defined');
     this.emphasizers[emphasizerKey] = emphasizer;
   }
 
+  /**
+   * Add a TootStep under a specific key
+   * @param tootKey unique id, to be used when showing a tutorial
+   * @param tootJson a json representing a TootStep
+   */
   addTootStep(tootKey: string, tootJson: string) {
     if (!tootKey) throw Error('tootKey must be defined');
     let toot: TootStep = Object.assign(new TootStep, JSON.parse(tootJson));
@@ -38,6 +62,11 @@ export class Tooter {
   }
 
   protected currentStepKeys: Array<string>;
+
+  /**
+   * Starts a tutorial from the first TootStep in the given array
+   * @param tootKeys an array of TootStep keys. Order is important
+   */
   show(tootKeys: Array<string>) {
     if (!tootKeys || tootKeys.length == 0) throw new Error();
     this.currentStepKeys = tootKeys;
