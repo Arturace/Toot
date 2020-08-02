@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "package": "npm run build && babel dist/tsc --out-dir dist/browser --extensions \".js\" --source-maps inline && node js-appender.js dist/browser"
+    "package": "npm run build && babel dist/tsc --out-dir dist/browser --extensions \".js\" --source-maps inline && node js-appender.js dist/browser",
+    "test": "ts-mocha -p tsconfig.test.json test/**/*.test.ts"
   },
   "author": "Artur Madjidov",
   "license": "MIT",
