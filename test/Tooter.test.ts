@@ -113,30 +113,35 @@ describe('add functions', () => {
 });
 
 context('show', () => {
-  const initFuncCounter = () => ({
-    setDescription: 0
-    , setTitle: 0
-    , setNextCallback: 0
-    , setPreviousCallback: 0
-    , setStopCallback: 0
-    , show: 0
-    , hide: 0
-  });
   /** Saves the number of calls to mocked object's functions */
-  const calls = {
-    displayGenerator1: initFuncCounter()
-    , displayGenerator2: initFuncCounter()
-    , emphasizer1: {
-      emphasize: 0
-      , deemphasize: 0
-    }
-    , emphasizer2: {
-      emphasize: 0
-      , deemphasize: 0
-    }
-  }
+  let calls;
+  let nextCallback: () => void;
+  beforeEach(() => {
+    const initFuncCounter = () => ({
+      setDescription: 0
+      , setTitle: 0
+      , setNextCallback: 0
+      , setPreviousCallback: 0
+      , setStopCallback: 0
+      , show: 0
+      , hide: 0
+    });
 
-  let nextCallback: () => void = null;
+    calls = {
+      displayGenerator1: initFuncCounter()
+      , displayGenerator2: initFuncCounter()
+      , emphasizer1: {
+        emphasize: 0
+        , deemphasize: 0
+      }
+      , emphasizer2: {
+        emphasize: 0
+        , deemphasize: 0
+      }
+    };
+    nextCallback = undefined;
+  });
+
   const mockTootDisplayGenerator
     : (callKey: 'displayGenerator1' | 'displayGenerator2') => ITootDisplayGenerator =
     (callKey) => (step) => {
@@ -203,6 +208,25 @@ context('show', () => {
       // displayGenerator1 should be shown twice and hidden twice
       for (let prop in calls.displayGenerator1) {
         expect(calls.displayGenerator1[prop]).to.equal(2);
+      }
+      // displayGenerator2 should be shown once and hidden once
+      for (let prop in calls.displayGenerator2) {
+        expect(calls.displayGenerator2[prop]).to.equal(1);
+      }
+      res();
+    });
+  });
+
+  it('show 2 > 3 > done', async () => {
+    await tooter.show(tootKeys, 1);
+    await nextCallback();
+    await nextCallback();
+    
+    return new Promise(res => {
+      console.table(calls);
+      // displayGenerator1 should be shown once and hidden once
+      for (let prop in calls.displayGenerator1) {
+        expect(calls.displayGenerator1[prop]).to.equal(1);
       }
       // displayGenerator2 should be shown once and hidden once
       for (let prop in calls.displayGenerator2) {

@@ -67,10 +67,12 @@ export class Tooter {
    * Starts a tutorial from the first TootStep in the given array
    * @param tootKeys an array of TootStep keys. Order is important
    */
-  show(tootKeys: Array<string>) {
-    if (!tootKeys || tootKeys.length == 0) throw new Error();
+  show(tootKeys: Array<string>, startWith: number = 0) {
+    if (!tootKeys || tootKeys.length == 0) throw new Error('tootKeys are required');
+    if (startWith < 0) throw new Error('Caanot start tutorial with an undex inferior to 0');
+    if (startWith >= tootKeys.length) throw new Error('Cannot start tutorial with an index superior or equal to the length of the given tootKeys array');
     this.currentStepKeys = tootKeys;
-    return this.displayStep(0);
+    this.displayStep(startWith);
   }
 
   /**
