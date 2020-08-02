@@ -1,10 +1,18 @@
+/**
+ * A tutorial step
+ */
 export class TootStep {
+  /** A selector for the target element */
   public selector: string;
   /** Cached target element */
   private element: HTMLElement;
+  /** Title to display */
   public title: string;
+  /** Description to display */
   public description: string;
+  /** Emphasizer for the step */
   public emphasizer: string;
+  /** Display generator for the step */
   public displayGenerator: string;
   /** Element set by an emphasizer */
   public emphasizerElement: HTMLElement;
@@ -34,6 +42,10 @@ export class TootStep {
   }
   //#endregion
   
+  /**
+   * Will get (cached or not) element from a TootStep
+   * @param tootStep ToolStep to get or store the cached element
+   */
   public static getElement(tootStep: TootStep) {
     if (!tootStep.element) {
       tootStep.element = document.querySelector(tootStep.selector);
