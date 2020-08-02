@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "package": "npm run build && babel src --out-dir dist --extensions \".ts,.tsx\" --source-maps inline"
+    "package": "npm run build && babel dist/tsc --out-dir dist/browser --extensions \".js\" --source-maps inline && node js-appender.js dist/browser"
   },
   "author": "Artur Madjidov",
   "license": "MIT",

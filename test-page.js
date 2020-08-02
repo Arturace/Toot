@@ -1,7 +1,7 @@
 /// <reference path="./src/TootStep.ts" />
 
-import { Tooter } from "/dist/Tooter.js";
-import { TootStep } from "/dist/TootStep.js";
+import { Tooter } from "/dist/browser/Tooter.js";
+import { TootStep } from "/dist/browser/TootStep.js";
 
 const highlighter = {
   emphasize: function () {
