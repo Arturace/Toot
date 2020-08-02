@@ -18,10 +18,10 @@ if (!argv[2]) throw new Error('No directory or file given');
 
 let givenPath = path.resolve(argv[2]);
 let fielPaths = [];
-
-if (fs.lstatSync(givenPath).isFile())
+let fileStats = fs.lstatSync(givenPath);
+if (fileStats.isFile())
   fielPaths.push(givenPath);
-else if (fs.lstatSync(givenPath).isDirectory())
+else if (fileStats.isDirectory())
   fielPaths = fs.readdirSync(givenPath).map(s => path.resolve(givenPath, s));
 else 
   throw new Error('Unsupported file type');
