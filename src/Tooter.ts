@@ -82,7 +82,6 @@ export class Tooter {
     let step = this.toots[this.currentStepKeys[indexOfStep]];
     let display = this.displayGenerators[step.displayGenerator](step);
 
-    // Updating the text
     display.setDescription(step.description);
     display.setTitle(step.title);
 
@@ -92,24 +91,6 @@ export class Tooter {
       this.continue(indexOfStep - 1, indexOfStep, step, display));
     display.setStopCallback(() =>
       this.continue(-1, indexOfStep, step, display));
-
-    // if (display.previousBtn) {
-    //   display.previousBtn.onclick = () => this.continue(indexOfstep - 1, step, display);
-
-    //   if (indexOfstep == 0)
-    //     display.previousBtn.innerHTML = "Nevermind...";
-    //   else
-    //     display.previousBtn.innerHTML = "Previous";
-    // }
-
-    // if (display.nextBtn) {
-    //   display.nextBtn.onclick = () => this.continue(indexOfstep + 1, step, display);
-
-    //   if (indexOfstep + 1 < this.currentStepKeys.length)
-    //     display.nextBtn.innerHTML = "Next";
-    //   else
-    //     display.nextBtn.innerHTML = "Done!";
-    // }
 
     this.emphasizers[step.emphasizer].emphasize.call(step);
     display.show(indexOfStep, this.currentStepKeys.length);
