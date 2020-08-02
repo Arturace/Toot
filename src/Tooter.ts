@@ -41,7 +41,7 @@ export class Tooter {
   show(tootKeys: Array<string>) {
     if (!tootKeys || tootKeys.length == 0) throw new Error();
     this.currentStepKeys = tootKeys;
-    this.displayStep(0);
+    return this.displayStep(0);
   }
 
   /**
@@ -64,26 +64,8 @@ export class Tooter {
     display.setStopCallback(() =>
       this.continue(-1, indexOfStep, step, display));
 
-    // if (display.previousBtn) {
-    //   display.previousBtn.onclick = () => this.continue(indexOfstep - 1, step, display);
-
-    //   if (indexOfstep == 0)
-    //     display.previousBtn.innerHTML = "Nevermind...";
-    //   else
-    //     display.previousBtn.innerHTML = "Previous";
-    // }
-
-    // if (display.nextBtn) {
-    //   display.nextBtn.onclick = () => this.continue(indexOfstep + 1, step, display);
-
-    //   if (indexOfstep + 1 < this.currentStepKeys.length)
-    //     display.nextBtn.innerHTML = "Next";
-    //   else
-    //     display.nextBtn.innerHTML = "Done!";
-    // }
-
     this.emphasizers[step.emphasizer].emphasize.call(step);
-    display.show(indexOfStep, this.currentStepKeys.length);
+    return display.show(indexOfStep, this.currentStepKeys.length);
   }
   /**
    * Depens on currentStepKeys
@@ -95,7 +77,7 @@ export class Tooter {
     , previousStepX:number
     , previousStep: TootStep
     , previousDisplay: ITootDisplay) {
-    Promise.all([
+    return Promise.all([
       this.emphasizers[previousStep.emphasizer].deemphasize.call(previousStep)
       , previousDisplay.hide(previousStepX, this.currentStepKeys.length)
     ])
@@ -105,6 +87,7 @@ export class Tooter {
         } else if (nextTootX == this.currentStepKeys.length) {
           if (this.tootCompletedCallback) this.tootCompletedCallback();
         } else {
+          console.log('continue displayStep nextTootX: ' + nextTootX);
           this.displayStep(nextTootX);
         }
       })
