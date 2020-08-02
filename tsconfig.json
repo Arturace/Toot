@@ -2,7 +2,8 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "ES2020",
-    "outDir": "dist",
+    "outDir": "./dist/tsc",
+    "sourceMap": false,
     "lib": [
       "es5",
       "es6",

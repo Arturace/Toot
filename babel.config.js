@@ -1,14 +1,16 @@
 module.exports = (api) => {
-  api.cache(true);
+  api.cache(false);
 
   const presets = [
     [
       "@babel/env"
       , {
-        targets: "> 0.25%, not dead"
+        targets: {
+          'esmodules': true
+        },
+        modules: false
       }
-    ],
-    "@babel/typescript"
+    ]
   ];
 
   const plugins = [
