@@ -23,17 +23,17 @@ if (fileStats.isFile())
   fielPaths.push(givenPath);
 else if (fileStats.isDirectory())
   fielPaths = fs.readdirSync(givenPath).map(s => path.resolve(givenPath, s));
-else 
+else
   throw new Error('Unsupported file type');
 
 fielPaths.forEach((filepath) => {
   fs.readFile(filepath, 'utf8', (err, data) => {
     if (err) throw err;
-    if (!data.match(/import .* from/g)) return;
-    
+    if (!data.match(/import .* from\s+['"]\.\//g)) return;
+
     let newData = data.replace(
       /(import .* from\s+['"])([^'"]*)(?<!\.js)(?=['"])/g, '$1$2.js');
-      
+
     console.log(`Appending '.js' extensions to imports inside of ${filepath}`);
     fs.writeFile(filepath, newData, function (err) {
       if (err) throw err;
